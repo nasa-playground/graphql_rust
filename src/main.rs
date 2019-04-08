@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate juniper;
 
+mod contriview;
 mod schema;
 
 use crate::schema::{create_schema, Schema};
