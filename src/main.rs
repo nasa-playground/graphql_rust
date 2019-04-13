@@ -5,7 +5,9 @@ mod contriview;
 mod schema;
 
 use crate::schema::{create_schema, Schema};
-use actix_web::{middleware::Logger, web, App, Error, HttpResponse, HttpServer};
+use actix_web::{
+    http, middleware::cors::Cors, middleware::Logger, web, App, Error, HttpResponse, HttpServer,
+};
 use futures::Future;
 use juniper::http::graphiql::graphiql_source;
 use juniper::http::GraphQLRequest;
@@ -22,6 +24,7 @@ fn graphql(
     schema: web::Data<Arc<Schema>>,
     request: web::Json<GraphQLRequest>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
+    log::info!("graphql");
     web::block(move || {
         let res = request.execute(&schema, &());
         Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
@@ -35,7 +38,7 @@ fn graphql(
 }
 
 fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web");
+    std::env::set_var("RUST_LOG", "graphql_example");
     env_logger::init();
 
     log::info!("server lunch!, localhost::8080");
@@ -46,6 +49,12 @@ fn main() -> std::io::Result<()> {
         App::new()
             .data(schema.clone())
             .wrap(Logger::default())
+            .wrap(
+                Cors::new()
+                    .allowed_origin("http://localhost:3000")
+                    .allowed_methods(vec!["GET", "POST"])
+                    .max_age(3600),
+            )
             .service(web::resource("/graphql").route(web::post().to_async(graphql)))
             .service(web::resource("/graphiql").route(web::get().to(graphiql)))
     })
