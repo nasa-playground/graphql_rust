@@ -51,8 +51,8 @@ fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(
                 Cors::new()
-                    .allowed_origin("http://localhost:3000")
                     .allowed_methods(vec!["GET", "POST"])
+                    .allowed_header(http::header::CONTENT_TYPE)
                     .max_age(3600),
             )
             .service(web::resource("/graphql").route(web::post().to_async(graphql)))

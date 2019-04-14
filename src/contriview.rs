@@ -4,7 +4,9 @@ use juniper::GraphQLObject;
 use scraper::*;
 
 #[derive(Debug, Default, PartialEq, Eq, GraphQLObject)]
+/// hoge
 pub struct ContriView {
+    /// hoge
     today_contributions: i32,
     week_contributions: i32,
     month_contributions: i32,
